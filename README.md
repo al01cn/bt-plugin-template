@@ -28,15 +28,13 @@ demo/
 
 ## 设计思路
 
-**核心原则：源码文件零占位符，不影响代码审查。**
+**核心原则：占位符直观可读，打包时自动替换。**
 
-- `main.js`、`index.html`、`demo_main.py` 等源码文件中**没有任何占位符**，直接写死 `demo` 或通过运行时读取
-- 插件信息集中在根目录 `package.json` 管理，打包时自动生成以下文件：
+- 插件信息集中在根目录 `package.json` 管理，打包时自动替换源码中的占位符并生成：
   - `src/info.json` — 宝塔插件配置
-  - `src/install.sh` — 安装/卸载脚本（从 `install.sh.tpl` 生成）
-  - `src/static/js/package.js` — 前端信息对象（从 `package.js.tpl` 生成）
-- `.tpl` 模板文件入库跟踪，生成的实际文件通过 `.gitignore` 排除
-- 占位符语法 `{{#字段名#}}` **仅存在于 `.tpl` 文件中**
+- 占位符语法 `{{#plugin_xxx#}}`，以 `plugin_` 前缀命名，开发者一眼就能看懂含义
+- 占位符与 `package.json` 字段的映射关系定义在 `pack.py` 的 `PLACEHOLDER_MAP` 中
+- `templates/` 目录不参与占位符替换（保留 Jinja2 原生 `{{ }}` 语法）
 
 ## 快速开始
 
@@ -85,9 +83,9 @@ python pack.py --version 1.1
 
 打包流程：
 1. 读取 `package.json`
-2. 从 `.tpl` 模板生成 `install.sh`、`package.js`（替换 `{{#字段名#}}` 占位符）
+2. 遍历 `src/` 文件，替换 `{{#plugin_xxx#}}` 占位符
 3. 生成 `info.json`
-4. 打包 `src/` 为 zip（排除 `.tpl` 文件）
+4. 打包为 zip
 
 ### 5. 安装到宝塔面板
 
@@ -137,6 +135,17 @@ public.writeFile("/path/to/file", "内容")
 - 避免使用 `action`、`name`、`s`、`a` 等保留字段作为参数名
 - 前端页面在宝塔面板 iframe 内渲染，不要写完整的 HTML 结构（`<!DOCTYPE>` 等），只写内容片段
 - `templates/index.html` 是独立模板页面，需要完整的 HTML 结构
+
+## VSCode 代码片段
+
+项目内置了 `.vscode/*.code-snippets`，在对应文件类型中输入前缀即可 Tab 补全：
+
+| 前缀 | 文件类型 | 作用 |
+|------|----------|------|
+| `bt-package` | JS / JSON | 生成 `package.js` 或 `package.json` 完整模板 |
+| `bt-install` | Shell | 生成 `install.sh` 完整模板 |
+| `bt-name` | JS / Python / Shell / HTML | 插入 `{{#plugin_name#}}` 占位符 |
+| `bt-title` | JS / Shell | 插入 `{{#plugin_title#}}` 占位符 |
 
 ## 许可
 

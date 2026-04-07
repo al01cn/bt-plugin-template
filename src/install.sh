@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
 # ===== 插件基本信息（打包时自动从 package.json 替换） =====
-PLUGIN_NAME="{{#name#}}"
+PLUGIN_NAME="{{#plugin_name#}}"
 install_path="/www/server/panel/plugin/${PLUGIN_NAME}"
 
 # 安装
@@ -31,7 +31,7 @@ Install()
     chmod -R 755 "${install_path}"
 
     echo "=========================================="
-    echo "{{#title#}} 插件安装完成！"
+    echo "{{#plugin_title#}} 插件安装完成！"
     echo "=========================================="
 }
 

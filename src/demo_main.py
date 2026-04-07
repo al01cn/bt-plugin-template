@@ -29,7 +29,7 @@ class demo_main:
     前端通过 plugin?action=a&s=方法名&name=demo 调用。
     """
 
-    __plugin_path = "/www/server/panel/plugin/{{#name#}}/"
+    __plugin_path = "/www/server/panel/plugin/{{#plugin_name#}}/"
     __config = None
 
     def __init__(self):

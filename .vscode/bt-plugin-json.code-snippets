@@ -1,0 +1,21 @@
+{
+    "宝塔插件 package.json 模板": {
+        "scope": "json",
+        "prefix": "bt-package",
+        "description": "生成 package.json 插件信息模板",
+        "body": [
+            "{",
+            "  \"title\": \"宝塔插件DEMO\",",
+            "  \"name\": \"demo\",",
+            "  \"ps\": \"插件功能描述\",",
+            "  \"versions\": \"1.0\",",
+            "  \"checks\": \"/www/server/panel/plugin/demo\",",
+            "  \"author\": \"YourName\",",
+            "  \"home\": \"https://github.com/yourname/bt-plugin-demo\",",
+            "  \"sort\": 100,",
+            "  \"icon\": \"icon.png\",",
+            "  \"coexist\": true",
+            "}"
+        ]
+    }
+}

@@ -9,13 +9,14 @@
 
 流程:
     1. 从 package.json 读取插件信息
-    2. 读取 src/ 源码，替换占位符 {{#key#}}
+    2. 读取 src/ 源码，替换占位符 {{#plugin_xxx#}}
     3. 生成 info.json（从 package.json 直接构建）
     4. 打包到 dist/zip，不修改 src/ 任何文件
 
-占位符语法: {{#字段名#}}，字段名对应 package.json 中的键。
+占位符语法: {{#plugin_xxx#}}，字段名以 plugin_ 前缀直观命名，
+通过 PLACEHOLDER_MAP 映射到 package.json 中的键。
 src/ 中任何文件都可以使用占位符，打包时自动替换（仅在文件包含占位符时才处理）。
-代码文件（JS/Python）中建议写成 "{{#key#}}" 字符串形式，避免触发代码审查。
+代码文件（JS/Python）中建议写成 "{{#plugin_xxx#}}" 字符串形式，避免触发代码审查。
 templates/ 目录不参与替换（保留 Jinja2 模板语法）。
 """
 
@@ -27,8 +28,23 @@ import shutil
 import zipfile
 import argparse
 
-# 占位符正则: {{#字段名#}}
+# 占位符正则: {{#plugin_xxx#}}
 PLACEHOLDER_RE = re.compile(r"\{\{#(\w+)#\}\}")
+
+# 占位符名称 → package.json 键的映射
+# 模板中使用 {{#plugin_name#}} 这样的直观命名，打包时映射到 package.json 中的 "name"
+PLACEHOLDER_MAP = {
+    "plugin_title": "title",
+    "plugin_name": "name",
+    "plugin_description": "ps",
+    "plugin_version": "versions",
+    "plugin_author": "author",
+    "plugin_home": "home",
+    "plugin_sort": "sort",
+    "plugin_icon": "icon",
+    "plugin_checks": "checks",
+    "plugin_coexist": "coexist",
+}
 
 
 def load_package_json():
@@ -48,11 +64,13 @@ def has_placeholder(content):
 
 
 def replace_placeholders(content, variables):
-    """替换内容中的 {{#key#}} 占位符，未匹配到的保持原样"""
+    """替换内容中的 {{#plugin_xxx#}} 占位符，未匹配到的保持原样"""
     def replacer(match):
-        key = match.group(1)
-        if key in variables:
-            return str(variables[key])
+        placeholder = match.group(1)
+        # 先通过映射表查找，映射到的 key 再从 variables 取值
+        pkg_key = PLACEHOLDER_MAP.get(placeholder, placeholder)
+        if pkg_key in variables:
+            return str(variables[pkg_key])
         return match.group(0)
 
     return PLACEHOLDER_RE.sub(replacer, content)

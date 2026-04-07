@@ -3,14 +3,14 @@
  */
 
 var __BT_PLUGIN__ = Object.freeze({
-    title: "{{#title#}}",
-    name: "{{#name#}}",
-    ps: "{{#ps#}}",
-    version: "{{#versions#}}",
-    author: "{{#author#}}",
-    home: "{{#home#}}",
-    sort: "{{#sort#}}",
-    icon: "{{#icon#}}",
-    checks: "{{#checks#}}",
-    coexist: "{{#coexist#}}"
+    title: "{{#plugin_title#}}",
+    name: "{{#plugin_name#}}",
+    ps: "{{#plugin_description#}}",
+    version: "{{#plugin_version#}}",
+    author: "{{#plugin_author#}}",
+    home: "{{#plugin_home#}}",
+    sort: "{{#plugin_sort#}}",
+    icon: "{{#plugin_icon#}}",
+    checks: "{{#plugin_checks#}}",
+    coexist: "{{#plugin_coexist#}}"
 });

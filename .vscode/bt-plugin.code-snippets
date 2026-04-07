@@ -1,0 +1,37 @@
+{
+    "宝塔插件 package.js 模板": {
+        "scope": "javascript",
+        "prefix": "bt-package",
+        "description": "生成 package.js 插件信息配置",
+        "body": [
+            "/**",
+            " * 插件信息配置（由 pack.py 打包时自动替换占位符）",
+            " */",
+            "",
+            "var __BT_PLUGIN__ = Object.freeze({",
+            "    title: \"{{#plugin_title#}}\",",
+            "    name: \"{{#plugin_name#}}\",",
+            "    ps: \"{{#plugin_description#}}\",",
+            "    version: \"{{#plugin_version#}}\",",
+            "    author: \"{{#plugin_author#}}\",",
+            "    home: \"{{#plugin_home#}}\",",
+            "    sort: \"{{#plugin_sort#}}\",",
+            "    icon: \"{{#plugin_icon#}}\",",
+            "    checks: \"{{#plugin_checks#}}\",",
+            "    coexist: \"{{#plugin_coexist#}}\"",
+            "});"
+        ]
+    },
+    "宝塔插件占位符 name": {
+        "scope": "javascript",
+        "prefix": "bt-name",
+        "description": "插入 {{#plugin_name#}} 占位符",
+        "body": ["{{#plugin_name#}}"]
+    },
+    "宝塔插件占位符 title": {
+        "scope": "javascript",
+        "prefix": "bt-title",
+        "description": "插入 {{#plugin_title#}} 占位符",
+        "body": ["{{#plugin_title#}}"]
+    }
+}

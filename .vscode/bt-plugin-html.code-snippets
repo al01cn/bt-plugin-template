@@ -1,0 +1,8 @@
+{
+    "宝塔插件占位符 name": {
+        "scope": "html",
+        "prefix": "bt-name",
+        "description": "插入 {{#plugin_name#}} 占位符",
+        "body": ["{{#plugin_name#}}"]
+    }
+}
