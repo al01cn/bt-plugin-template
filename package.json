@@ -1,0 +1,12 @@
+{
+  "title": "宝塔插件DEMO",
+  "name": "demo",
+  "ps": "宝塔插件开发示例项目，演示前后端交互、系统信息获取等常用功能",
+  "versions": "1.0",
+  "checks": "/www/server/panel/plugin/demo",
+  "author": "YourName",
+  "home": "https://github.com/yourname/bt-plugin-demo",
+  "sort": 100,
+  "icon": "icon.png",
+  "coexist": true
+}
