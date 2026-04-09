@@ -1,0 +1,14 @@
+{
+  "files.exclude": {
+    "**/{{#plugin_name#}}_main.py": false
+  },
+  "python.analysis.ignore": [
+    "{{#plugin_name#}}_main.py"
+  ],
+  "python.linting.ignorePatterns": [
+    "**/{{#plugin_name#}}_main.py"
+  ],
+  "files.watcherExclude": {
+    "**/{{#plugin_name#}}_main.py": false
+  }
+}

@@ -13,6 +13,8 @@ import json
 # 设置运行目录
 os.chdir("/www/server/panel")
 
+data_path = os.path.join("/www/server", "{{#plugin_name#}}") # 插件数据根目录
+
 # 添加包引用位置并引用公共包
 sys.path.append("class/")
 import public # type: ignore
@@ -21,8 +23,8 @@ import public # type: ignore
 if __name__ != '__main__':
     from BTPanel import cache, session, redirect # type: ignore
 
-
-class demo_main:
+# 插件主程序类
+class plugin_name_main:
     """宝塔插件 DEMO - 后端主程序
 
     类名必须与文件名（不含 _main 后缀）一致。

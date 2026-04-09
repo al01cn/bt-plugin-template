@@ -1,0 +1,11 @@
+[MASTER]
+# 忽略的文件模式
+ignore={{#plugin_name#}}_main.py
+
+[MESSAGES CONTROL]
+# 禁用的警告消息
+disable=
+    invalid-name,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring

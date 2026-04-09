@@ -7,18 +7,19 @@
 ```
 demo/
 ├── package.json                    # 插件信息（统一管理，修改这里即可）
+├── build                           # Linux/macOS 打包脚本 (./build)
+├── build.sh                        # Linux/Unix 打包脚本 (./build.sh)
+├── build.bat                       # Windows 批处理脚本
+├── build.ps1                       # Windows PowerShell 脚本
 ├── src/                            # 源码目录（也是插件的实际目录结构）
 │   ├── info.json                   # 由 pack.py 自动生成，不入 git
-│   ├── install.sh                  # 由 pack.py 从 .tpl 自动生成，不入 git
-│   ├── icon.png                    # 插件图标（建议 96x96 PNG）
+│   ├── install.sh                  # 安装脚本（支持占位符替换）
+│   ├── icon.png                    # 插件图标（建议 32x32 PNG）
 │   ├── index.html                  # 前端面板页面（宝塔内嵌渲染）
-│   ├── demo_main.py                # 后端主程序（运行时从 info.json 读取信息）
-│   ├── templates/
-│   │   └── index.html              # Jinja2 模板页面（保留原生 {{ }} 语法）
+│   ├── {{#plugin_name#}}_main.py   # 后端主程序（打包时自动重命名为 {name}_main.py）
 │   └── static/
 │       └── js/
-│           ├── package.js.tpl      # 前端信息模板（入库跟踪）
-│           ├── package.js          # 由 pack.py 从 .tpl 自动生成，不入 git
+│           ├── package.js          # 前端配置（支持占位符替换，如 {{#plugin_name#}} → demo），为了方便你获取到配置信息，所以进行了这样的处理。
 │           └── main.js             # 前端交互脚本（从 window.__BT_PLUGIN__ 读取信息）
 ├── dist/                           # 打包输出（自动生成，不要手动修改）
 ├── pack.py                         # 打包脚本
@@ -35,6 +36,37 @@ demo/
 - 占位符语法 `{{#plugin_xxx#}}`，以 `plugin_` 前缀命名，开发者一眼就能看懂含义
 - 占位符与 `package.json` 字段的映射关系定义在 `pack.py` 的 `PLACEHOLDER_MAP` 中
 - `templates/` 目录不参与占位符替换（保留 Jinja2 原生 `{{ }}` 语法）
+
+## 开发调试
+
+> ⚠️ **重要提示**：宝塔面板没有提供热重载功能，每次修改代码后都需要重新打包并上传安装。
+
+### 开启开发者模式
+
+1. 登录宝塔面板
+2. 进入 **面板设置** → **开发者选项** → 打开开关
+3. 进入 **软件商店** → **第三方应用**
+4. 点击 **导入插件**，选择打包好的 zip 文件进行安装
+
+### 调试流程
+
+```bash
+# 1. 修改代码
+# 编辑 src/ 目录下的文件
+
+# 2. 打包插件（开发版）
+./build                    # Linux/macOS
+build.bat                  # Windows CMD
+.\build.ps1                # Windows PowerShell
+
+# 3. 上传到服务器
+scp dist/dev/demo_vdev_1.0.zip root@your-server:/tmp/
+
+# 4. 在宝塔面板中导入安装
+# 软件商店 → 第三方应用 → 导入插件 → 选择 /tmp/demo_vdev_1.0.zip
+
+# 5. 测试功能，重复上述步骤
+```
 
 ## 快速开始
 
@@ -56,9 +88,15 @@ demo/
 }
 ```
 
-### 2. 重命名主程序文件
+### 2. 修改主程序类名
 
-将 `src/demo_main.py` 重命名为 `{name}_main.py`，类名也要对应修改。运行时会从同目录 `info.json` 读取版本号等信息。
+在 `src/{{#plugin_name#}}_main.py` 中，将类名改为 `plugin_name_main`。打包时会自动替换为 `{name}_main`。
+
+例如：如果 `package.json` 中 `"name": "myplugin"`，则：
+- 文件名：`{{#plugin_name#}}_main.py` → 打包后变为 `myplugin_main.py`
+- 类名：`class plugin_name_main:` → 打包后变为 `class myplugin_main:`
+
+**注意：** 使用 `plugin_name_main` 作为类名可以避免开发时的语法检查错误。
 
 ### 3. 开发后端 API
 
@@ -73,19 +111,62 @@ class your_plugin_main:
 
 ### 4. 打包
 
-```bash
-# 默认打包（版本号读取 package.json）
-python pack.py
+#### 快捷打包（推荐）
 
-# 指定版本号（仅影响本次打包，不修改 package.json）
-python pack.py --version 1.1
+**Linux/macOS:**
+```bash
+chmod +x build              # 首次添加执行权限
+./build                     # 默认开发版
+./build -t beta             # 测试版
+./build -t release          # 正式版
+./build -v 2.0 -t beta      # 指定版本+类型
+./build -h                  # 查看帮助
 ```
 
-打包流程：
-1. 读取 `package.json`
-2. 遍历 `src/` 文件，替换 `{{#plugin_xxx#}}` 占位符
-3. 生成 `info.json`
-4. 打包为 zip
+**Windows CMD:**
+```cmd
+build.bat -t dev
+build.bat -t beta
+build.bat -v 2.0 -t release
+```
+
+**Windows PowerShell:**
+```powershell
+.\build.ps1 -t dev
+.\build.ps1 -t beta
+.\build.ps1 -v 2.0 -t release
+```
+
+#### 直接使用 Python
+
+```bash
+python pack.py                          # 默认开发版
+python pack.py --type beta              # 测试版
+python pack.py --type release           # 正式版
+python pack.py -v 2.0 -t beta           # 指定版本+类型
+python pack.py --help                   # 查看帮助
+```
+
+#### 构建类型说明
+
+| 类型 | 输出目录 | 压缩包名 | 标题后缀 | is_beta |
+|------|---------|---------|---------|--------|
+| `dev` (默认) | `dist/dev/` | `demo_vdev_1.0.zip` | `[开发版]` | ✅ true |
+| `beta` | `dist/beta/` | `demo_vbeta_1.0.zip` | `[测试版]` | ✅ true |
+| `release` | `dist/release/` | `demo_v1.0.zip` | 无 | ❌ 无 |
+
+**参数说明：**
+- `-t, --type`: 构建类型 (dev/beta/release)，默认为 dev
+- `-v, --version`: 指定版本号，覆盖 package.json 中的版本
+- `-h, --help`: 显示帮助信息
+
+#### 打包流程
+
+1. 读取 `package.json` 获取插件信息
+2. 根据构建类型调整配置（标题、is_beta 字段等）
+3. 遍历 `src/` 文件，替换 `{{#plugin_xxx#}}` 占位符
+4. 生成 `info.json`（包含宝塔需要的配置）
+5. 打包为 zip 文件到对应目录
 
 ### 5. 安装到宝塔面板
 
@@ -135,6 +216,7 @@ public.writeFile("/path/to/file", "内容")
 - 避免使用 `action`、`name`、`s`、`a` 等保留字段作为参数名
 - 前端页面在宝塔面板 iframe 内渲染，不要写完整的 HTML 结构（`<!DOCTYPE>` 等），只写内容片段
 - `templates/index.html` 是独立模板页面，需要完整的 HTML 结构
+- `{{#plugin_name#}}_main.py` 文件在开发时会有语法警告，这是正常的，打包时会自动重命名
 
 ## VSCode 代码片段
 
@@ -146,6 +228,20 @@ public.writeFile("/path/to/file", "内容")
 | `bt-install` | Shell | 生成 `install.sh` 完整模板 |
 | `bt-name` | JS / Python / Shell / HTML | 插入 `{{#plugin_name#}}` 占位符 |
 | `bt-title` | JS / Shell | 插入 `{{#plugin_title#}}` 占位符 |
+
+## VSCode 配置说明
+
+项目已配置 `.vscode/settings.json` 和 `.pylintrc`，自动忽略 `{{#plugin_name#}}_main.py` 文件的语法检查。
+
+**开发建议：**
+- 使用 `class plugin_name_main:` 作为类名，避免语法检查错误
+- 打包时会自动替换为 `class {plugin_name}_main:`
+- 文件名 `{{#plugin_name#}}_main.py` 也会自动重命名为 `{plugin_name}_main.py`
+
+**注意事项：**
+- 不要手动重命名文件或类名
+- 保持 `plugin_name_main` 的命名约定
+- 如需调整代码检查规则，可编辑 `.vscode/settings.json` 和 `.pylintrc`
 
 ## 许可
 
